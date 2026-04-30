@@ -11,6 +11,7 @@ type Student = {
 
 export default function StudentDashboard() {
   const [studentsData, setStudentsData] = useState<Student[] | null>(null);
+  const [searchString, setSearchString] = useState("");
   useEffect(() => {
     const fetchData = () =>{setStudentsData(mockData);}
     fetchData();
@@ -29,6 +30,15 @@ export default function StudentDashboard() {
   return (
     <div>
   <h1>Student Dashboard</h1><br/>
+  <br/>
+  <input
+    type="text"
+    placeholder="Search students..."
+    value={searchString}
+    onChange={(e) => setSearchString(e.target.value)}
+    className="border-2 border-gray-300 rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+  />
+  <br/><br/>
   <table className="border-collapse border-2">
     <thead>
       <tr className="bg-gray-700">
@@ -39,7 +49,7 @@ export default function StudentDashboard() {
       </tr>
     </thead>
     <tbody>
-      {studentsData.map((student, index) => (
+      {studentsData.filter((student) => student.name.toLowerCase().includes(searchString.toLowerCase())).map((student, index) => (
         <tr key={index}>
           <td className="border-2 px-4 py-2 text-center">{student.id}</td>
           <td className="border-2 px-4 py-2">{student.name}</td>
