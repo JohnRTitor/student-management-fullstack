@@ -34,3 +34,58 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Database Schema
+
+This project uses a relational database (PostgreSQL) with three main tables: `students`, `courses`, and `enrollments`.
+
+### 1. Students Table
+
+Stores basic student information.
+
+```sql
+CREATE TABLE students (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    grade VARCHAR(2),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+### 2. Courses Table
+
+Stores course details.
+
+```sql
+CREATE TABLE courses (
+    id SERIAL PRIMARY KEY,
+    title TEXT NOT NULL,
+    description TEXT,
+    max_capacity INT NOT NULL CHECK (max_capacity > 0)
+);
+```
+
+### 3. Enrollments Table
+
+Handles the many-to-many relationship between students and courses.
+
+```sql
+CREATE TABLE enrollments (
+    student_id INT,
+    course_id INT,
+    enrolled_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (student_id, course_id),
+
+    CONSTRAINT fk_student
+        FOREIGN KEY (student_id)
+        REFERENCES students(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_course
+        FOREIGN KEY (course_id)
+        REFERENCES courses(id)
+        ON DELETE CASCADE
+);
+```

@@ -1,23 +1,27 @@
 import z from "zod";
 
-export const studentSchema = z.object({
-  id: z.uuid(),
-  name: z.string(),
-  email: z.email(),
-  created_at: z.iso.datetime(),
+const name = z.string().min(1, "Name is required");
+const email = z.email("Invalid email");
+const grade = z.string().length(2, "Grade must be 2 characters");
+const id = z.uuid("Invalid student ID");
+const createdAt = z.iso.datetime();
+
+const baseStudentSchema = z.object({
+  name,
+  email,
+  grade,
 });
 
-export const createStudentSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  email: z.email("Invalid email"),
+export const studentSchema = baseStudentSchema.extend({
+  id,
+  created_at: createdAt,
 });
 
-export const updateStudentSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-});
+export const createStudentSchema = baseStudentSchema;
 
+export const updateStudentSchema = baseStudentSchema.partial();
 export const studentIdParamSchema = z.object({
-  id: z.uuid("Invalid student ID"),
+  id,
 });
 
 export type Student = z.infer<typeof studentSchema>;
