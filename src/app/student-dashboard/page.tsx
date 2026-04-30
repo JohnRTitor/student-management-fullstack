@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import mockData from "./mock-data.json";
+import SortIcon from "@/components/sort-icon";
 
 type Student = {
   id: number;
@@ -10,8 +11,41 @@ type Student = {
 };
 
 export default function StudentDashboard() {
-  const [studentsData, setStudentsData] = useState<Student[] | null>(null);
+  const [studentsData, setStudentsData] = useState<Student[]>([]);
   const [searchString, setSearchString] = useState("");
+  const [sortOrder, setSortOrder] = useState<"ascending" | "descending">("ascending");
+  const [sortKey, setSortKey] = useState<"id" | "name" | "email" | "grade">("id");
+
+  const handleSort = () => {
+    if(sortOrder === "ascending"){
+        setSortOrder("descending");
+    } else {
+        setSortOrder("ascending");
+    }
+    const sortedData = [...studentsData].sort((a, b) => {
+      if( sortKey === "name"){
+        return sortOrder === "ascending" 
+      ? a.name.localeCompare(b.name) 
+      : b.name.localeCompare(a.name);
+    }
+    else if( sortKey === "email"){
+      return sortOrder === "ascending"
+      ? a.email.localeCompare(b.email) 
+      : b.email.localeCompare(a.email);
+    }
+    else if( sortKey === "grade" ){
+      return sortOrder === "ascending"
+      ? a.grade.localeCompare(b.grade) 
+      : b.grade.localeCompare(a.grade);
+    }
+    else {
+      return sortOrder === "ascending"
+      ? a[sortKey] - b[sortKey] : b[sortKey] - a[sortKey];
+    }
+    });  
+    setStudentsData(sortedData);
+  }
+
   useEffect(() => {
     const fetchData = () =>{setStudentsData(mockData);}
     fetchData();
@@ -42,10 +76,22 @@ export default function StudentDashboard() {
   <table className="border-collapse border-2">
     <thead>
       <tr className="bg-gray-700">
-        <th className="border-2 px-4 py-2">ID</th>
-        <th className="border-2 px-4 py-2">Name</th>
-        <th className="border-2 px-4 py-2">Email</th>
-        <th className="border-2 px-4 py-2">Grade</th>
+        <th className="border-2 px-4 py-2" onClick={() => {
+             setSortKey("id");
+             handleSort();
+        }}>ID <SortIcon direction={sortKey === "id" ?sortOrder : null}/></th>
+        <th className="border-2 px-4 py-2" onClick={() => {
+           setSortKey("name");  
+           handleSort();
+        }}> Name <SortIcon direction={sortKey === "name" ? sortOrder : null}/></th>
+        <th className="border-2 px-4 py-2" onClick={() => {
+            setSortKey("email");  
+            handleSort();
+        }}>Email <SortIcon direction={sortKey === "email" ? sortOrder : null}/></th>
+        <th className="border-2 px-4 py-2" onClick={() => {
+            setSortKey("grade");  
+            handleSort();
+        }}>Grade <SortIcon direction={sortKey === "grade" ? sortOrder : null}/></th>
       </tr>
     </thead>
     <tbody>
