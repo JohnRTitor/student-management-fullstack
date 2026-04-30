@@ -1,4 +1,5 @@
 import { pool } from "@/lib/db";
+import { Student } from "./student.schema";
 
 export const createStudent = async (name: string, email: string) => {
   const result = await pool.query(
@@ -8,12 +9,15 @@ export const createStudent = async (name: string, email: string) => {
   return result.rows[0];
 };
 
-export const getStudents = async () => {
+export const getStudents = async (): Promise<Student[]> => {
   const result = await pool.query("SELECT * FROM students");
   return result.rows;
 };
 
-export const updateStudent = async (id: string, name: string) => {
+export const updateStudent = async (
+  id: string,
+  name: string,
+): Promise<Student> => {
   const result = await pool.query(
     "UPDATE students SET name=$1 WHERE id=$2 RETURNING *",
     [name, id],
