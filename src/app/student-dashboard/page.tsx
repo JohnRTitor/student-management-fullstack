@@ -1,15 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
-import mockData from "./mock-data.json";
 import SortIcon from "@/components/sort-icon";
 import Loader from "@/components/loader";
-
-type Student = {
-  id: number;
-  name: string;
-  email: string;
-  grade: string;
-};
+import { Student } from "@/backend/modules/student/student.schema";
 
 export default function StudentDashboard() {
   const [studentsData, setStudentsData] = useState<Student[]>([]);
@@ -52,21 +45,18 @@ export default function StudentDashboard() {
   };
 
   useEffect(() => {
-    const fetchData = () => {
-      setStudentsData(mockData);
-      setIsLoading(false);
-    };
-
-    fetchData();
-
-    // fetch("/student-dashboard/mock-data.json")
-    // .then((response) => response.json())
-    // .then((responseData) => {console.log("Fetched data:", responseData);
-    //     setStudentsData(responseData);
-    // })
-    // .catch((error) => {
-    //     console.error("Error fetching data:", error);
-    // })
+    fetch("/api/students")
+      .then((response) => response.json())
+      .then((responseData) => {
+        console.log("Fetched data:", responseData);
+        setStudentsData(responseData.data);
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+        setError("Failed to fetch student data");
+        setIsLoading(false);
+      });
   }, []);
 
   if (isLoading) return <Loader />;
@@ -75,7 +65,9 @@ export default function StudentDashboard() {
 
   return (
     <div>
-      <h1>Student Dashboard</h1>
+      <h1 className="text-5xl py-10 px-10 text-cyan-500 font-bold">
+        Student Dashboard
+      </h1>
       <br />
       <br />
       <input
