@@ -1,11 +1,14 @@
 import { pool } from "@/lib/db";
-import { Student } from "./student.schema";
+import { CreateStudentPayload, Student } from "./student.schema";
 
-export const createStudent = async (name: string, email: string) => {
+export const createStudent = async (payload: CreateStudentPayload) => {
+  const { name, email, grade } = payload;
+
   const result = await pool.query(
-    "INSERT INTO students (name, email) VALUES ($1, $2) RETURNING *",
-    [name, email],
+    "INSERT INTO students (name, email, grade) VALUES ($1, $2, $3) RETURNING *",
+    [name, email, grade],
   );
+
   return result.rows[0];
 };
 
