@@ -15,6 +15,12 @@ export default function DeleteStudentButton({ id }: DeleteStudentProps) {
   );
 
   const handleDelete = async () => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this student?",
+    );
+
+    if (!confirmed) return;
+
     await execute();
   };
 
