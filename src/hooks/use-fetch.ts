@@ -1,42 +1,66 @@
 import { useCallback, useEffect, useState } from "react";
 
+type ExecuteParams<T, R> = {
+  url?: string;
+  options?: RequestInit;
+  transform?: (data: T) => R;
+};
+
 export const useFetch = <T, R = T>(
-  url: string,
-  options?: RequestInit,
-  transform?: (data: T) => R,
-  manual?: boolean,
+  defaultUrl: string,
+  defaultOptions?: RequestInit,
+  defaultTransform?: (data: T) => R,
+  manual = false,
 ) => {
   const [data, setData] = useState<R | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const execute = useCallback(async (): Promise<R | null> => {
-    setIsLoading(true);
-    setError(null);
+  const execute = useCallback(
+    async (params?: ExecuteParams<T, R>): Promise<R | null> => {
+      const finalUrl = params?.url ?? defaultUrl;
 
-    try {
-      const response = await fetch(url, options);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      const finalOptions: RequestInit = {
+        ...defaultOptions,
+        ...params?.options,
+        headers: {
+          ...(defaultOptions?.headers || {}),
+          ...(params?.options?.headers || {}),
+        },
+      };
+
+      const finalTransform = params?.transform ?? defaultTransform;
+
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const response = await fetch(finalUrl, finalOptions);
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const rawData: T = await response.json();
+
+        const finalData = finalTransform
+          ? finalTransform(rawData)
+          : (rawData as unknown as R);
+
+        setData(finalData);
+        return finalData;
+      } catch (err) {
+        console.error("Fetch error:", err);
+        const message = err instanceof Error ? err.message : String(err);
+
+        setError(message);
+        return null;
+      } finally {
+        setIsLoading(false);
       }
-
-      const rawData: T = await response.json();
-
-      const finalData = transform
-        ? transform(rawData)
-        : (rawData as unknown as R);
-
-      setData(finalData);
-      return finalData;
-    } catch (err) {
-      console.error("Fetch error:", err);
-      setError(err instanceof Error ? err.message : String(err));
-
-      return null;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [url, options, transform]);
+    },
+    [defaultUrl, defaultOptions, defaultTransform],
+  );
 
   useEffect(() => {
     if (manual) return;

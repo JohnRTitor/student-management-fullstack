@@ -1,4 +1,7 @@
 "use client";
+import { Student } from "@/backend/modules/student/student.schema";
+import { ApiSuccessResponse } from "@/backend/utils/response";
+import { useFetch } from "@/hooks/use-fetch";
 import { FiEdit } from "react-icons/fi";
 
 type EditStudentProps = {
@@ -8,29 +11,35 @@ type EditStudentProps = {
 };
 
 export default function EditStudent({ id, field, value }: EditStudentProps) {
+  const { execute } = useFetch<ApiSuccessResponse<Student>, Student>(
+    `/api/students/${id}`,
+    {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+    },
+    undefined,
+    true,
+  );
+
   const handleEdit = async () => {
     const newValue = prompt(`Enter new ${field}`, value);
     if (newValue === null || newValue.trim() === "") {
       return;
     }
-    try {
-      const response = await fetch(`/api/students/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ [field]: newValue }),
-      });
 
-      if (!response.ok) {
-        throw new Error("Failed to update student");
-      }
-      alert(`${field} updated successfully`);
-      const updatedStudentData = await response.json();
-      if (!updatedStudentData.success) {
-        throw new Error("Failed to update student");
-      }
-    } catch (error) {
-      console.error("Error updating student:", error);
-    }
+    await execute({
+      options: {
+        body: JSON.stringify({ [field]: newValue }),
+      },
+      transform: (response) => {
+        if (!response.success) {
+          alert(`Failed to update ${field}: ${response.message}`);
+        }
+
+        alert(`${field} updated successfully`);
+        return response.data;
+      },
+    });
   };
 
   return (
