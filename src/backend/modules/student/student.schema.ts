@@ -2,7 +2,10 @@ import z from "zod";
 
 const name = z.string().min(1, "Name is required");
 const email = z.email("Invalid email");
-const grade = z.string().max(3, "Grade must be maximum of 3 characters");
+const grade = z.coerce
+  .number()
+  .min(0, "Grade must be at least 0")
+  .max(100, "Grade must be at most 100");
 const id = z.coerce
   .number()
   .int("ID must be an integer")
