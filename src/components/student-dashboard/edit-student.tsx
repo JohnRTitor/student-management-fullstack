@@ -1,5 +1,8 @@
 "use client";
-import { Student } from "@/backend/modules/student/student.schema";
+import {
+  patchStudentSchema,
+  Student,
+} from "@/backend/modules/student/student.schema";
 import { ApiSuccessResponse } from "@/backend/utils/response";
 import { useFetch } from "@/hooks/use-fetch";
 import { FiEdit } from "react-icons/fi";
@@ -32,10 +35,21 @@ export default function EditStudent({
     if (newValue === null || newValue.trim() === "") {
       return;
     }
+    const payload = { [field]: newValue };
+
+    const result = patchStudentSchema.safeParse(payload);
+
+    if (!result.success) {
+      alert(
+        "Validation failed: " +
+          result.error.issues.map((err) => err.message).join(", "),
+      );
+      return;
+    }
 
     const response = await execute({
       options: {
-        body: JSON.stringify({ [field]: newValue }),
+        body: JSON.stringify(payload),
       },
     });
 

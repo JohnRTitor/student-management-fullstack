@@ -3,7 +3,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useFetch } from "@/hooks/use-fetch";
 import { ApiSuccessResponse } from "@/backend/utils/response";
-import { Student } from "@/backend/modules/student/student.schema";
+import {
+  createStudentSchema,
+  Student,
+} from "@/backend/modules/student/student.schema";
 
 type AddStudentFormProps = {
   onSuccess: () => void;
@@ -13,6 +16,7 @@ export default function AddStudentForm({ onSuccess }: AddStudentFormProps) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [grade, setGrade] = useState("");
+  const [formError, setFormError] = useState<string>("");
 
   const { execute, isLoading, error } = useFetch<ApiSuccessResponse<Student>>(
     "/api/students",
@@ -26,6 +30,18 @@ export default function AddStudentForm({ onSuccess }: AddStudentFormProps) {
 
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setFormError("");
+
+    const formData = { name, email, grade };
+    const result = createStudentSchema.safeParse(formData);
+
+    if (!result.success) {
+      setFormError(
+        "Validation failed: " +
+          result.error.issues.map((err) => err.message).join(", "),
+      );
+      return;
+    }
 
     const response = await execute({
       options: {
@@ -89,8 +105,12 @@ export default function AddStudentForm({ onSuccess }: AddStudentFormProps) {
             Submit
           </button>
         </div>
-
         <br />
+        {formError && (
+          <div className="text-red-500 dark:text-red-300 text-center">
+            <p>{formError}</p>
+          </div>
+        )}
       </form>
     </div>
   );
