@@ -20,7 +20,9 @@ export default function AddStudent() {
       });
 
       const responseData = await newStudent.json();
-      console.log("Added student:", responseData);
+      if (!responseData.success) {
+        throw new Error(responseData.error.message);
+      }
       router.refresh();
     } catch (error) {
       console.error("Error adding student:", error);
