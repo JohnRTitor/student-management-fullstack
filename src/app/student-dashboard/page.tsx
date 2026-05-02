@@ -65,7 +65,7 @@ export default function StudentDashboard() {
   });
 
   return (
-    <div className="bg-pink-800 min-h-screen">
+    <div>
       <h1 className="underline text-5xl py-10 text-cyan-500 font-bold flex justify-center">
         Student Dashboard
       </h1>
