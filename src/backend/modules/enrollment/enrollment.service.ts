@@ -11,6 +11,10 @@ export const enrollStudent = async (student_id: number, course_id: number) => {
       [course_id],
     );
 
+    if (!course.rows.length) {
+      throw new Error("Course not found");
+    }
+
     const count = await client.query(
       "SELECT COUNT(*) FROM enrollments WHERE course_id=$1",
       [course_id],

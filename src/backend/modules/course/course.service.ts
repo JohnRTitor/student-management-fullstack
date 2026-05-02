@@ -1,4 +1,5 @@
 import { pool } from "@/lib/db";
+import type { CourseIdParam, UpdateCourseInput } from "./course.schema";
 
 export const createCourse = async (
   title: string,
@@ -18,17 +19,32 @@ export const getCourses = async () => {
 };
 
 export const updateCourse = async (
-  id: string,
-  title: string,
-  max_capacity: number,
+  id: CourseIdParam["id"],
+  payload: UpdateCourseInput,
 ) => {
+  const { title, description, max_capacity } = payload;
+
   const result = await pool.query(
-    "UPDATE courses SET title=$1, max_capacity=$2 WHERE id=$3 RETURNING *",
-    [title, max_capacity, id],
+    "UPDATE courses SET title=$1, description=$2, max_capacity=$3 WHERE id=$4 RETURNING *",
+    [title, description, max_capacity, id],
   );
+
+  if (!result.rows.length) {
+    throw new Error("Course not found");
+  }
+
   return result.rows[0];
 };
 
-export const deleteCourse = async (id: string) => {
-  await pool.query("DELETE FROM courses WHERE id=$1", [id]);
+export const deleteCourse = async (id: CourseIdParam["id"]) => {
+  const result = await pool.query(
+    "DELETE FROM courses WHERE id=$1 RETURNING *",
+    [id],
+  );
+
+  if (!result.rows.length) {
+    throw new Error("Course not found");
+  }
+
+  return result.rows[0];
 };
