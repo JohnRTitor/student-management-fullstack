@@ -3,13 +3,14 @@ import { useEffect, useState } from "react";
 import SortIcon from "@/components/sort-icon";
 import Loader from "@/components/loader";
 import { Student } from "@/backend/modules/student/student.schema";
-import AddStudent from "@/components/add-student";
+import AddStudentForm from "@/components/add-student";
 import EditStudent from "@/components/edit-student";
-import DeleteStudent from "@/components/delete-student";
+import DeleteStudentButton from "@/components/delete-student";
+import { useFetch } from "@/hooks/use-fetch";
+import { ApiSuccessResponse } from "@/backend/utils/response";
 
 export default function StudentDashboard() {
   const [showAddForm, setShowAddForm] = useState(false);
-  const [studentsData, setStudentsData] = useState<Student[]>([]);
   const [searchString, setSearchString] = useState("");
   const [sortOrder, setSortOrder] = useState<"ascending" | "descending">(
     "ascending",
@@ -17,8 +18,21 @@ export default function StudentDashboard() {
   const [sortKey, setSortKey] = useState<"id" | "name" | "email" | "grade">(
     "id",
   );
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    data: students,
+    isLoading,
+    error,
+  } = useFetch<ApiSuccessResponse<Student[]>, Student[]>(
+    "/api/students",
+    {
+      method: "GET",
+    },
+    (response) => response.data,
+  );
+
+  if (isLoading) return <Loader />;
+  if (error) return <div>Error: {error}</div>;
+  if (!students) return <div>No Student data found.</div>;
 
   const handleSort = () => {
     if (sortOrder === "ascending") {
@@ -26,46 +40,27 @@ export default function StudentDashboard() {
     } else {
       setSortOrder("ascending");
     }
-    const sortedData = [...studentsData].sort((a, b) => {
-      if (sortKey === "name") {
-        return sortOrder === "ascending"
-          ? a.name.localeCompare(b.name)
-          : b.name.localeCompare(a.name);
-      } else if (sortKey === "email") {
-        return sortOrder === "ascending"
-          ? a.email.localeCompare(b.email)
-          : b.email.localeCompare(a.email);
-      } else if (sortKey === "grade") {
-        return sortOrder === "ascending"
-          ? a.grade.localeCompare(b.grade)
-          : b.grade.localeCompare(a.grade);
-      } else {
-        return sortOrder === "ascending"
-          ? a[sortKey] - b[sortKey]
-          : b[sortKey] - a[sortKey];
-      }
-    });
-    setStudentsData(sortedData);
   };
 
-  useEffect(() => {
-    fetch("/api/students")
-      .then((response) => response.json())
-      .then((responseData) => {
-        console.log("Fetched data:", responseData);
-        setStudentsData(responseData.data);
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        console.error("Error fetching data:", error);
-        setError("Failed to fetch student data");
-        setIsLoading(false);
-      });
-  }, []);
-
-  if (isLoading) return <Loader />;
-  if (error) return <div>Error: {error}</div>;
-  if (!studentsData) return <div>Student data is null</div>;
+  const sortedStudents = students.sort((a, b) => {
+    if (sortKey === "name") {
+      return sortOrder === "ascending"
+        ? a.name.localeCompare(b.name)
+        : b.name.localeCompare(a.name);
+    } else if (sortKey === "email") {
+      return sortOrder === "ascending"
+        ? a.email.localeCompare(b.email)
+        : b.email.localeCompare(a.email);
+    } else if (sortKey === "grade") {
+      return sortOrder === "ascending"
+        ? a.grade.localeCompare(b.grade)
+        : b.grade.localeCompare(a.grade);
+    } else {
+      return sortOrder === "ascending"
+        ? a[sortKey] - b[sortKey]
+        : b[sortKey] - a[sortKey];
+    }
+  });
 
   return (
     <div className="bg-pink-800 min-h-screen">
@@ -145,7 +140,7 @@ export default function StudentDashboard() {
             </tr>
           </thead>
           <tbody>
-            {studentsData
+            {sortedStudents
               .filter((student) =>
                 student.name.toLowerCase().includes(searchString.toLowerCase()),
               )
@@ -185,14 +180,14 @@ export default function StudentDashboard() {
                     </div>
                   </td>
                   <td className="border-2 px-4 py-2 text-center bg-slate-800">
-                    <DeleteStudent id={student.id} />
+                    <DeleteStudentButton id={student.id} />
                   </td>
                 </tr>
               ))}
           </tbody>
         </table>
       </div>
-      {showAddForm && <AddStudent />}
+      {showAddForm && <AddStudentForm />}
     </div>
   );
 }

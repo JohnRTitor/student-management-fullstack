@@ -1,29 +1,26 @@
 "use client";
 
-import { number } from "zod";
+import { useFetch } from "@/hooks/use-fetch";
 
 type DeleteStudentProps = {
   id: number;
 };
 
-export default function DeleteStudent({ id }: DeleteStudentProps) {
-  const handleDelete = async (id: number) => {
-    try {
-      const deleteStudent = await fetch(`/api/students/${id}`, {
-        method: "DELETE",
-      });
-      if (!deleteStudent.ok) {
-        throw new Error("Failed to delete student");
-      }
-      alert(`${id} ID Student deleted successfully`);
-    } catch (error) {
-      console.error("Error deleting student:", error);
-    }
+export default function DeleteStudentButton({ id }: DeleteStudentProps) {
+  const { execute, isLoading, error } = useFetch(
+    `/api/students/${id}`,
+    { method: "DELETE" },
+    undefined,
+    true,
+  );
+
+  const handleDelete = async () => {
+    await execute();
   };
 
   return (
     <button
-      onClick={() => handleDelete(id)}
+      onClick={handleDelete}
       className="border-1 rounded-md px-3 bg-red-700 text-white"
     >
       Delete

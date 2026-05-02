@@ -1,32 +1,28 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useFetch } from "@/hooks/use-fetch";
 
-export default function AddStudent() {
+export default function AddStudentForm() {
   const router = useRouter();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [grade, setGrade] = useState("");
 
+  const { execute, isLoading, error } = useFetch(
+    "/api/students",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    },
+    undefined,
+    true,
+  );
+
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    try {
-      const newStudent = await fetch("/api/students", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name, email: email, grade: grade }),
-      });
-
-      const responseData = await newStudent.json();
-      if (!responseData.success) {
-        throw new Error(responseData.error.message);
-      }
-      router.refresh();
-    } catch (error) {
-      console.error("Error adding student:", error);
-    }
+    await execute();
   };
 
   return (
