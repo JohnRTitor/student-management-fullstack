@@ -55,8 +55,8 @@ export default function StudentDashboard() {
         : b.email.localeCompare(a.email);
     } else if (sortKey === "grade") {
       return sortOrder === "ascending"
-        ? a.grade.localeCompare(b.grade)
-        : b.grade.localeCompare(a.grade);
+        ? a[sortKey] - b[sortKey]
+        : b[sortKey] - a[sortKey];
     } else {
       return sortOrder === "ascending"
         ? a[sortKey] - b[sortKey]
@@ -184,7 +184,7 @@ export default function StudentDashboard() {
                       <EditStudent
                         id={student.id}
                         field="grade"
-                        value={student.grade}
+                        value={student.grade.toString()}
                         onSuccess={() => refetchStudents()}
                       />
                     </div>
