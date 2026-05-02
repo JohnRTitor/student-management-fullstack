@@ -1,13 +1,19 @@
 "use client";
 
+import { Student } from "@/backend/modules/student/student.schema";
+import { ApiSuccessResponse } from "@/backend/utils/response";
 import { useFetch } from "@/hooks/use-fetch";
 
 type DeleteStudentProps = {
   id: number;
+  onSuccess: () => void;
 };
 
-export default function DeleteStudentButton({ id }: DeleteStudentProps) {
-  const { execute, isLoading, error } = useFetch(
+export default function DeleteStudentButton({
+  id,
+  onSuccess,
+}: DeleteStudentProps) {
+  const { execute, isLoading, error } = useFetch<ApiSuccessResponse<Student>>(
     `/api/students/${id}`,
     { method: "DELETE" },
     undefined,
@@ -21,7 +27,11 @@ export default function DeleteStudentButton({ id }: DeleteStudentProps) {
 
     if (!confirmed) return;
 
-    await execute();
+    const response = await execute();
+
+    if (response && response.success) {
+      onSuccess();
+    }
   };
 
   return (

@@ -8,10 +8,16 @@ type EditStudentProps = {
   id: number;
   field: "name" | "email" | "grade";
   value: string;
+  onSuccess: () => void;
 };
 
-export default function EditStudent({ id, field, value }: EditStudentProps) {
-  const { execute } = useFetch<ApiSuccessResponse<Student>, Student>(
+export default function EditStudent({
+  id,
+  field,
+  value,
+  onSuccess,
+}: EditStudentProps) {
+  const { execute } = useFetch<ApiSuccessResponse<Student>>(
     `/api/students/${id}`,
     {
       method: "PATCH",
@@ -27,19 +33,20 @@ export default function EditStudent({ id, field, value }: EditStudentProps) {
       return;
     }
 
-    await execute({
+    const response = await execute({
       options: {
         body: JSON.stringify({ [field]: newValue }),
       },
-      transform: (response) => {
-        if (!response.success) {
-          alert(`Failed to update ${field}: ${response.message}`);
-        }
-
-        alert(`${field} updated successfully`);
-        return response.data;
-      },
     });
+
+    if (!response?.success) {
+      alert(`Failed to update ${field}: ${response?.message}`);
+    }
+
+    if (response && response.success) {
+      alert(`${field} updated successfully`);
+      onSuccess();
+    }
   };
 
   return (

@@ -1,11 +1,11 @@
 "use client";
-import { useEffect, useState } from "react";
-import SortIcon from "@/components/sort-icon";
-import Loader from "@/components/loader";
+import { useState } from "react";
+import SortIcon from "@/components/ui/sort-icon";
+import Loader from "@/components/ui/loader";
 import { Student } from "@/backend/modules/student/student.schema";
-import AddStudentForm from "@/components/add-student";
-import EditStudent from "@/components/edit-student";
-import DeleteStudentButton from "@/components/delete-student";
+import AddStudentForm from "@/components/student-dashboard/add-student";
+import EditStudent from "@/components/student-dashboard/edit-student";
+import DeleteStudentButton from "@/components/student-dashboard/delete-student";
 import { useFetch } from "@/hooks/use-fetch";
 import { ApiSuccessResponse } from "@/backend/utils/response";
 
@@ -20,6 +20,7 @@ export default function StudentDashboard() {
   );
   const {
     data: students,
+    execute: refetchStudents,
     isLoading,
     error,
   } = useFetch<ApiSuccessResponse<Student[]>, Student[]>(
@@ -156,6 +157,7 @@ export default function StudentDashboard() {
                         id={student.id}
                         field="name"
                         value={student.name}
+                        onSuccess={() => refetchStudents()}
                       />
                     </div>
                   </td>
@@ -166,6 +168,7 @@ export default function StudentDashboard() {
                         id={student.id}
                         field="email"
                         value={student.email}
+                        onSuccess={() => refetchStudents()}
                       />
                     </div>
                   </td>
@@ -176,18 +179,22 @@ export default function StudentDashboard() {
                         id={student.id}
                         field="grade"
                         value={student.grade}
+                        onSuccess={() => refetchStudents()}
                       />
                     </div>
                   </td>
                   <td className="border-2 px-4 py-2 text-center bg-slate-800">
-                    <DeleteStudentButton id={student.id} />
+                    <DeleteStudentButton
+                      id={student.id}
+                      onSuccess={() => refetchStudents()}
+                    />
                   </td>
                 </tr>
               ))}
           </tbody>
         </table>
       </div>
-      {showAddForm && <AddStudentForm />}
+      {showAddForm && <AddStudentForm onSuccess={() => refetchStudents()} />}
     </div>
   );
 }

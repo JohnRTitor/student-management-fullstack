@@ -2,15 +2,19 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useFetch } from "@/hooks/use-fetch";
+import { ApiSuccessResponse } from "@/backend/utils/response";
+import { Student } from "@/backend/modules/student/student.schema";
 
-export default function AddStudentForm() {
-  const router = useRouter();
+type AddStudentFormProps = {
+  onSuccess: () => void;
+};
 
+export default function AddStudentForm({ onSuccess }: AddStudentFormProps) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [grade, setGrade] = useState("");
 
-  const { execute, isLoading, error } = useFetch(
+  const { execute, isLoading, error } = useFetch<ApiSuccessResponse<Student>>(
     "/api/students",
     {
       method: "POST",
@@ -23,11 +27,15 @@ export default function AddStudentForm() {
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    await execute({
+    const response = await execute({
       options: {
         body: JSON.stringify({ name, email, grade }),
       },
     });
+
+    if (response && response.success) {
+      onSuccess();
+    }
   };
 
   return (
