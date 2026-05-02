@@ -48,7 +48,7 @@ CREATE TABLE students (
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
-    grade VARCHAR(2),
+    grade VARCHAR(3),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 ```

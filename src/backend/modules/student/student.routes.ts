@@ -3,9 +3,14 @@ import {
   createStudentController,
   deleteStudentController,
   getStudentsController,
+  updateStudentController,
 } from "./student.controller";
 import { validateBody, validateParams } from "@/backend/utils";
-import { createStudentSchema, studentIdParamSchema } from "./student.schema";
+import {
+  createStudentSchema,
+  studentIdParamSchema,
+  updateStudentSchema,
+} from "./student.schema";
 
 export const studentRoutes = new Hono();
 
@@ -24,6 +29,19 @@ studentRoutes.post(
   "/",
   validateBody(createStudentSchema),
   createStudentController,
+);
+
+/**
+ * @route   PUT /students/:id
+ * @desc    Update a student by ID
+ * @param   id - Student ID (path param)
+ * @body    Validated using updateStudentSchema
+ */
+studentRoutes.put(
+  "/:id",
+  validateParams(studentIdParamSchema),
+  validateBody(updateStudentSchema),
+  updateStudentController,
 );
 
 /**

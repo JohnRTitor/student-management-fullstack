@@ -22,7 +22,7 @@ export const studentSchema = baseStudentSchema.extend({
 
 export const createStudentSchema = baseStudentSchema;
 
-export const updateStudentSchema = baseStudentSchema.partial();
+export const updateStudentSchema = baseStudentSchema;
 export const studentIdParamSchema = z.object({
   id,
 });
