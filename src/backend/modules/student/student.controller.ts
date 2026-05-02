@@ -2,6 +2,7 @@ import { Context } from "hono";
 import {
   createStudent,
   deleteStudent,
+  getStudentById,
   getStudents,
   updateStudent,
   updateStudentPartial,
@@ -28,6 +29,29 @@ export const getStudentsController = async (c: Context) => {
     );
   }
 };
+
+export const getStudentByIdController = async (c: Context) => {
+  try {
+    const { id } = c.get("validatedParams");
+
+    const student = await getStudentById(id);
+
+    return c.json(ok(student, "Student fetched successfully"), 200);
+  } catch (error) {
+    if (error instanceof Error && error.message === "Student not found") {
+      return c.json(fail(error.message, { code: "NOT_FOUND" }), 404);
+    }
+
+    return c.json(
+      fail("Failed to fetch student", {
+        code: "INTERNAL_ERROR",
+        details: error instanceof Error ? error.message : String(error),
+      }),
+      500,
+    );
+  }
+};
+
 export const createStudentController = async (c: Context) => {
   try {
     const body = c.get("validatedBody") as CreateStudentPayload;

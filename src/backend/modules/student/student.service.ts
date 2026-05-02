@@ -30,6 +30,18 @@ export const getStudents = async (): Promise<Student[]> => {
   return result.rows;
 };
 
+export const getStudentById = async (
+  id: StudentIdParam["id"],
+): Promise<Student> => {
+  const result = await pool.query("SELECT * FROM students WHERE id=$1", [id]);
+
+  if (!result.rows.length) {
+    throw new Error("Student not found");
+  }
+
+  return result.rows[0];
+};
+
 export const updateStudent = async (
   id: StudentIdParam["id"],
   payload: UpdateStudentPayload,

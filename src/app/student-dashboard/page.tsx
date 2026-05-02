@@ -8,6 +8,7 @@ import EditStudent from "@/components/student-dashboard/edit-student";
 import DeleteStudentButton from "@/components/student-dashboard/delete-student";
 import { useFetch } from "@/hooks/use-fetch";
 import { ApiSuccessResponse } from "@/backend/utils/response";
+import Link from "next/link";
 
 export default function StudentDashboard() {
   const [showAddForm, setShowAddForm] = useState(false);
@@ -148,7 +149,12 @@ export default function StudentDashboard() {
               .map((student, index) => (
                 <tr key={index} className="bg-teal-800">
                   <td className="border-2 px-4 py-2 text-center">
-                    {student.id}
+                    <Link
+                      href={`/students/${student.id}`}
+                      className="hover:underline"
+                    >
+                      {student.id}
+                    </Link>
                   </td>
                   <td className="border-2 px-4 py-2">
                     <div className="flex justify-between items-center">

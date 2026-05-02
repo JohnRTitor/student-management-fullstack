@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import {
   createStudentController,
   deleteStudentController,
+  getStudentByIdController,
   getStudentsController,
   patchStudentController,
   updateStudentController,
@@ -21,6 +22,17 @@ export const studentRoutes = new Hono();
  * @desc    Fetch all students
  */
 studentRoutes.get("/", getStudentsController);
+
+/**
+ * @route   GET /students/:id
+ * @desc    Fetch a student by ID
+ * @param   id - Student ID (path param)
+ */
+studentRoutes.get(
+  "/:id",
+  validateParams(studentIdParamSchema),
+  getStudentByIdController,
+);
 
 /**
  * @route   POST /students
