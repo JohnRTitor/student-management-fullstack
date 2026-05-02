@@ -5,7 +5,7 @@ import {
   getStudentsController,
   updateStudentController,
 } from "./student.controller";
-import { validateBody, validateParams } from "@/backend/utils";
+import { validateBody, validateParams } from "@/backend/utils/validation";
 import {
   createStudentSchema,
   studentIdParamSchema,
