@@ -140,6 +140,7 @@ CREATE TABLE enrollments (
 - `pnpm build` – build for production
 - `pnpm start` – run production build
 - `pnpm lint` – run ESLint
+- `scripts/test.sh` – create random students/courses and enroll them (requires `jq`; run `bash scripts/test.sh`)
 
 ## Notes
 

@@ -1,6 +1,6 @@
 # AI Usage
 
-AI assistance was used only for documentation.
+AI assistance was used only for documentation and test scripts.
 
 All application implementation (frontend and backend) was completed manually by consulting the official Hono and React (Next.js) documentation.
 
