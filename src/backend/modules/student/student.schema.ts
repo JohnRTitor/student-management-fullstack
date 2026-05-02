@@ -3,7 +3,8 @@ import z from "zod";
 const name = z.string().min(1, "Name is required");
 const email = z.email("Invalid email");
 const grade = z.string().max(3, "Grade must be maximum of 3 characters");
-const id = z
+const id = z.coerce
+  .number()
   .int("ID must be an integer")
   .positive("ID must be a positive integer");
 const createdAt = z.iso.datetime();
