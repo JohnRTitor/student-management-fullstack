@@ -1,5 +1,9 @@
 import { pool } from "@/lib/db";
-import { CreateStudentPayload, Student } from "./student.schema";
+import type {
+  CreateStudentPayload,
+  DeleteStudentPayload,
+  Student,
+} from "./student.schema";
 
 export const createStudent = async (payload: CreateStudentPayload) => {
   const { name, email, grade } = payload;
@@ -28,6 +32,6 @@ export const updateStudent = async (
   return result.rows[0];
 };
 
-export const deleteStudent = async (id: string) => {
-  await pool.query("DELETE FROM students WHERE id=$1", [id]);
+export const deleteStudent = async (payload: DeleteStudentPayload) => {
+  await pool.query("DELETE FROM students WHERE id=$1", [payload.id]);
 };

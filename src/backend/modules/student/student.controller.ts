@@ -1,5 +1,5 @@
 import { Context } from "hono";
-import { createStudent, getStudents } from "./student.service";
+import { createStudent, deleteStudent, getStudents } from "./student.service";
 import { CreateStudentPayload } from "./student.schema";
 
 export const getStudentsController = async (c: Context) => {
@@ -48,6 +48,33 @@ export const createStudentController = async (c: Context) => {
         error: {
           code: "INTERNAL_ERROR",
           message: "Failed to create student",
+          details: error instanceof Error ? error.message : String(error),
+        },
+      },
+      500,
+    );
+  }
+};
+
+export const deleteStudentController = async (c: Context) => {
+  try {
+    const { id } = c.get("validatedParams");
+
+    await deleteStudent({ id });
+    return c.json(
+      {
+        success: true,
+        message: "Student deleted successfully",
+      },
+      200,
+    );
+  } catch (error) {
+    return c.json(
+      {
+        success: false,
+        error: {
+          code: "INTERNAL_ERROR",
+          message: "Failed to delete student",
           details: error instanceof Error ? error.message : String(error),
         },
       },

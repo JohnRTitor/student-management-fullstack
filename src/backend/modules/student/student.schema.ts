@@ -22,11 +22,12 @@ export const studentSchema = baseStudentSchema.extend({
 export const createStudentSchema = baseStudentSchema;
 
 export const updateStudentSchema = baseStudentSchema.partial();
-export const deleteStudentSchema = z.object({
+export const studentIdParamSchema = z.object({
   id,
 });
 
 export type Student = z.infer<typeof studentSchema>;
 export type CreateStudentPayload = z.infer<typeof createStudentSchema>;
 export type UpdateStudentPayload = z.infer<typeof updateStudentSchema>;
-export type DeleteStudentPayload = z.infer<typeof deleteStudentSchema>;
+export type StudentIdParam = z.infer<typeof studentIdParamSchema>;
+export type DeleteStudentPayload = StudentIdParam;
