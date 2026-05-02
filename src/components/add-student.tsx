@@ -22,7 +22,12 @@ export default function AddStudentForm() {
 
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    await execute();
+
+    await execute({
+      options: {
+        body: JSON.stringify({ name, email, grade }),
+      },
+    });
   };
 
   return (
