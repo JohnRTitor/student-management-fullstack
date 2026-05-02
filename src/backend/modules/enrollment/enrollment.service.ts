@@ -39,3 +39,29 @@ export const enrollStudent = async (student_id: number, course_id: number) => {
     client.release();
   }
 };
+
+export const getStudentEnrollments = async (student_id: number) => {
+  const studentCheck = await pool.query("SELECT 1 FROM students WHERE id=$1", [
+    student_id,
+  ]);
+
+  if (!studentCheck.rows.length) {
+    throw new Error("Student not found");
+  }
+
+  const result = await pool.query(
+    `
+      SELECT
+        c.id as course_id,
+        c.title,
+        c.description,
+        c.max_capacity
+      FROM enrollments e
+      JOIN courses c ON e.course_id = c.id
+      WHERE e.student_id = $1
+    `,
+    [student_id],
+  );
+
+  return result.rows;
+};

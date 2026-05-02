@@ -15,4 +15,12 @@ export const enrollmentSchema = z.object({
   course_id,
 });
 
+export const enrollmentDetailSchema = z.object({
+  course_id,
+  title: z.string().min(1, "Course title is required"),
+  description: z.string().min(1, "Course description is required"),
+  max_capacity: z.number().gt(1, "Maximum capacity must greater than 1"),
+});
+
 export type EnrollStudentPayload = z.infer<typeof enrollmentSchema>;
+export type EnrollmentDetail = z.infer<typeof enrollmentDetailSchema>;

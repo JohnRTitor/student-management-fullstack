@@ -7,6 +7,7 @@ import {
   patchStudentController,
   updateStudentController,
 } from "./student.controller";
+import { getStudentEnrollmentsController } from "@/backend/modules/enrollment/enrollment.controller";
 import { validateBody, validateParams } from "@/backend/utils/validation";
 import {
   createStudentSchema,
@@ -22,6 +23,17 @@ export const studentRoutes = new Hono();
  * @desc    Fetch all students
  */
 studentRoutes.get("/", getStudentsController);
+
+/**
+ * @route   GET /students/:id/enrollments
+ * @desc    Fetch a student's enrollments
+ * @param   id - Student ID (path param)
+ */
+studentRoutes.get(
+  "/:id/enrollments",
+  validateParams(studentIdParamSchema),
+  getStudentEnrollmentsController,
+);
 
 /**
  * @route   GET /students/:id
