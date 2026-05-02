@@ -1,91 +1,147 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Student Management Fullstack
+
+A fullstack student management system built with **Next.js 16** (React 19) on the frontend and **Hono** on the backend, backed by **PostgreSQL**. It provides CRUD for students and courses, plus student enrollment with capacity checks.
+
+## Tech Stack
+
+- **Frontend**: Next.js 16 (App Router), React 19, Tailwind CSS
+- **Backend**: Hono (mounted via Next.js route handler)
+- **Database**: PostgreSQL
+- **Validation**: Zod
+- **HTTP**: JSON API
+
+## Features
+
+- Student dashboard with search, sorting, add/edit/delete
+- Student detail view
+- Course management API
+- Enrollment with course capacity enforcement
+- Consistent API response format with success/error payloads
+
+## Project Structure
+
+- `src/app` – Next.js app routes and pages
+- `src/app/api/[...route]/route.ts` – Hono bridge for API routes
+- `src/backend` – Hono app, routes, controllers, services, schemas
+- `src/lib/db.ts` – Postgres pool
+- `src/components` – UI components and dashboard
+- `src/hooks/use-fetch.ts` – Fetch helper hook
 
 ## Getting Started
 
-First, run the development server:
+### 1) Install dependencies
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2) Configure environment
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Create a `.env` file in the project root with:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+DATABASE_URL=postgres://USER:PASSWORD@HOST:PORT/DB_NAME
+```
 
-## Learn More
+### 3) Run the dev server
 
-To learn more about Next.js, take a look at the following resources:
+```
+pnpm dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+App runs at: `http://localhost:3000`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## API Overview
 
-## Deploy on Vercel
+Base path: `/api`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Students
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `GET /api/students` – list all students
+- `GET /api/students/:id` – fetch student by ID
+- `POST /api/students` – create student
+- `PUT /api/students/:id` – update student
+- `PATCH /api/students/:id` – partial update
+- `DELETE /api/students/:id` – delete student
+
+Payload shape:
+
+```/dev/null/student.payload.json#L1-5
+{
+  "name": "Jane Doe",
+  "email": "jane@example.com",
+  "grade": 90
+}
+```
+
+### Courses
+
+- `GET /api/courses` – list courses
+- `POST /api/courses` – create course
+- `PUT /api/courses/:id` – update course
+- `DELETE /api/courses/:id` – delete course
+
+Payload shape:
+
+```/dev/null/course.payload.json#L1-5
+{
+  "title": "Math 101",
+  "description": "Intro math course",
+  "max_capacity": 30
+}
+```
+
+### Enrollments
+
+- `POST /api/enrollments` – enroll a student
+
+```/dev/null/enroll.payload.json#L1-4
+{
+  "student_id": 1,
+  "course_id": 2
+}
+```
+
+Enrollment checks course capacity before inserting.
 
 ## Database Schema
 
-This project uses a relational database (PostgreSQL) with three main tables: `students`, `courses`, and `enrollments`.
+This project expects the following tables:
 
-### 1. Students Table
-
-Stores basic student information.
-
-```sql
+```/dev/null/schema.sql#L1-30
 CREATE TABLE students (
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
-    grade VARCHAR(3),
+    grade INT NOT NULL CHECK (grade >= 0 AND grade <= 100),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-```
 
-### 2. Courses Table
-
-Stores course details.
-
-```sql
 CREATE TABLE courses (
     id SERIAL PRIMARY KEY,
     title TEXT NOT NULL,
-    description TEXT,
-    max_capacity INT NOT NULL CHECK (max_capacity > 0)
+    description TEXT NOT NULL,
+    max_capacity INT NOT NULL CHECK (max_capacity > 1)
 );
-```
 
-### 3. Enrollments Table
-
-Handles the many-to-many relationship between students and courses.
-
-```sql
 CREATE TABLE enrollments (
     student_id INT,
     course_id INT,
     enrolled_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
     PRIMARY KEY (student_id, course_id),
-
-    CONSTRAINT fk_student
-        FOREIGN KEY (student_id)
-        REFERENCES students(id)
-        ON DELETE CASCADE,
-
-    CONSTRAINT fk_course
-        FOREIGN KEY (course_id)
-        REFERENCES courses(id)
-        ON DELETE CASCADE
+    CONSTRAINT fk_student FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+    CONSTRAINT fk_course FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE
 );
 ```
+
+## Scripts
+
+- `pnpm dev` – start dev server
+- `pnpm build` – build for production
+- `pnpm start` – run production build
+- `pnpm lint` – run ESLint
+
+## Notes
+
+- API responses follow a consistent `{ success, data?, message?, error? }` shape.
+- All API input is validated with Zod.
