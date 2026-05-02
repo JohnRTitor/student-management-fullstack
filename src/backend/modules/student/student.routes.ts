@@ -3,11 +3,13 @@ import {
   createStudentController,
   deleteStudentController,
   getStudentsController,
+  patchStudentController,
   updateStudentController,
 } from "./student.controller";
 import { validateBody, validateParams } from "@/backend/utils/validation";
 import {
   createStudentSchema,
+  patchStudentSchema,
   studentIdParamSchema,
   updateStudentSchema,
 } from "./student.schema";
@@ -42,6 +44,19 @@ studentRoutes.put(
   validateParams(studentIdParamSchema),
   validateBody(updateStudentSchema),
   updateStudentController,
+);
+
+/**
+ * @route   PATCH /students/:id
+ * @desc    Partially a student by ID
+ * @param   id - Student ID (path param)
+ * @body    Validated using patchStudentSchema
+ */
+studentRoutes.patch(
+  "/:id",
+  validateParams(studentIdParamSchema),
+  validateBody(patchStudentSchema),
+  patchStudentController,
 );
 
 /**

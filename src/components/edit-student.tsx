@@ -15,7 +15,7 @@ export default function EditStudent({ id, field, value }: EditStudentProps) {
     }
     try {
       const response = await fetch(`/api/students/${id}`, {
-        method: "PUT",
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ [field]: newValue }),
       });

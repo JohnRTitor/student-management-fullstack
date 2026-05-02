@@ -4,9 +4,11 @@ import {
   deleteStudent,
   getStudents,
   updateStudent,
+  updateStudentPartial,
 } from "./student.service";
 import type {
   CreateStudentPayload,
+  PatchStudentPayload,
   UpdateStudentPayload,
 } from "./student.schema";
 import { fail, ok } from "@/backend/utils/response";
@@ -87,5 +89,22 @@ export const deleteStudentController = async (c: Context) => {
       }),
       500,
     );
+  }
+};
+
+export const patchStudentController = async (c: Context) => {
+  try {
+    const { id } = c.get("validatedParams");
+    const body = c.get("validatedBody") as PatchStudentPayload;
+
+    const updatedStudent = await updateStudentPartial(id, body);
+
+    return c.json(ok(updatedStudent, "Student partially updated"), 200);
+  } catch (error) {
+    if (error instanceof Error && error.message === "Student not found") {
+      return c.json(fail(error.message, { code: "NOT_FOUND" }), 404);
+    }
+
+    return c.json(fail("Failed to patch student"), 500);
   }
 };

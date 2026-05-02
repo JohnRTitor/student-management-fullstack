@@ -23,6 +23,8 @@ export const studentSchema = baseStudentSchema.extend({
 export const createStudentSchema = baseStudentSchema;
 
 export const updateStudentSchema = baseStudentSchema;
+export const patchStudentSchema = baseStudentSchema.partial();
+
 export const studentIdParamSchema = z.object({
   id,
 });
@@ -30,5 +32,6 @@ export const studentIdParamSchema = z.object({
 export type Student = z.infer<typeof studentSchema>;
 export type CreateStudentPayload = z.infer<typeof createStudentSchema>;
 export type UpdateStudentPayload = z.infer<typeof updateStudentSchema>;
+export type PatchStudentPayload = z.infer<typeof patchStudentSchema>;
 export type StudentIdParam = z.infer<typeof studentIdParamSchema>;
 export type DeleteStudentPayload = StudentIdParam;
