@@ -10,7 +10,7 @@ const id = z.coerce
   .number()
   .int("ID must be an integer")
   .positive("ID must be a positive integer");
-const createdAt = z.iso.datetime();
+const createdAt = z.string().datetime();
 
 const baseStudentSchema = z.object({
   name,

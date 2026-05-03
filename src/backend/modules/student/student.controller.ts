@@ -102,14 +102,17 @@ export const deleteStudentController = async (c: Context) => {
 
     return c.json(ok(deletedStudent, "Student deleted successfully"), 200);
   } catch (error) {
+    console.error("Delete student error:", error);
+
     if (error instanceof Error && error.message === "Student not found") {
       return c.json(fail(error.message, { code: "NOT_FOUND" }), 404);
     }
 
+    const errorMessage = error instanceof Error ? error.message : String(error);
     return c.json(
       fail("Failed to delete student", {
         code: "INTERNAL_ERROR",
-        details: error instanceof Error ? error.message : String(error),
+        details: errorMessage,
       }),
       500,
     );

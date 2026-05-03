@@ -38,7 +38,11 @@ export const useFetch = <T, R = T>(
         const response = await fetch(finalUrl, finalOptions);
 
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+          const errorData = await response.text();
+          console.error("API Error Response:", errorData);
+          throw new Error(
+            `HTTP error! status: ${response.status} - ${errorData}`,
+          );
         }
 
         const rawData: T = await response.json();

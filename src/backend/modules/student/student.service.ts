@@ -108,14 +108,44 @@ export const updateStudentPartial = async (
 export const deleteStudent = async (
   payload: DeleteStudentPayload,
 ): Promise<Student> => {
-  const result = await pool.query(
-    "DELETE FROM students WHERE id=$1 RETURNING *",
-    [payload.id],
-  );
+  const client = await pool.connect();
 
-  if (result.rowCount === 0) {
-    throw new Error("Student not found");
+  try {
+    // Start a transaction
+    await client.query("BEGIN");
+
+    // First, delete all enrollments for this student
+    await client.query("DELETE FROM enrollments WHERE student_id = $1", [
+      payload.id,
+    ]);
+
+    // Then delete the student
+    const result = await client.query(
+      "DELETE FROM students WHERE id=$1 RETURNING *",
+      [payload.id],
+    );
+
+    if (!result.rows.length) {
+      await client.query("ROLLBACK");
+      throw new Error("Student not found");
+    }
+
+    // Commit the transaction
+    await client.query("COMMIT");
+
+    return result.rows[0];
+  } catch (error) {
+    // Rollback on any error
+    await client.query("ROLLBACK");
+    
+    if (error instanceof Error && error.message === "Student not found") {
+      throw error;
+    }
+    // Re-throw database errors with more context
+    throw new Error(
+      `Database error: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  } finally {
+    client.release();
   }
-
-  return result.rows[0];
 };
